@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
-import { CoreModule } from 'src/app/core';
+import { CoreModule } from 'src/app/core/core.module';
 import { ContentsComponent } from './contents.component';
 import { Routes, RouterModule } from '@angular/router';
+import { ContentsCreateComponent } from './contents-create/contents-create.component';
 
 const routes: Routes = [{
 	path: '',
@@ -14,7 +15,8 @@ const routes: Routes = [{
 		CoreModule
 	],
 	declarations: [
-		ContentsComponent
+		ContentsComponent,
+  ContentsCreateComponent
 	],
 	providers: []
 
