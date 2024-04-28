@@ -1,26 +1,26 @@
-import { Component } from "@angular/core";
-import { FormService } from "src/app/modules/form/form.service";
+import { Component } from '@angular/core';
+import { FormService } from 'src/app/modules/form/form.service';
+import { ContentService, Content } from '../../services/content.service';
+import { AlertService, CoreService, ModalService, MongoService, StoreService } from 'wacom';
+import { TranslateService } from 'src/app/modules/translate/translate.service';
+import { FormInterface } from 'src/app/modules/form/interfaces/form.interface';
+import { ContentsCreateComponent } from './contents-create/contents-create.component';
+import { UserService } from 'src/app/core';
 import {
-	ContentService,
-	Content,
-} from "../../services/content.service";
-import { AlertService, CoreService, ModalService, StoreService } from "wacom";
-import { TranslateService } from "src/app/modules/translate/translate.service";
-import { FormInterface } from "src/app/modules/form/interfaces/form.interface";
-import { ContentsCreateComponent } from "./contents-create/contents-create.component";
-import { UserService } from "src/app/core";
-import { Store, StoreService as _StoreService } from "src/app/modules/store/services/store.service";
+	Store,
+	StoreService as _StoreService
+} from 'src/app/modules/store/services/store.service';
 
 @Component({
-	templateUrl: "./contents.component.html",
-	styleUrls: ["./contents.component.scss"],
+	templateUrl: './contents.component.html',
+	styleUrls: ['./contents.component.scss']
 })
 export class ContentsComponent {
-	columns = ['enabled', 'top', "name", "description"];
+	columns = ['enabled', 'top', 'name', 'description'];
 
-	form: FormInterface = this._form.getForm("contents", {
-		formId: "contents",
-		title: "Contents",
+	form: FormInterface = this._form.getForm('contents', {
+		formId: 'contents',
+		title: 'Contents',
 		components: [
 			{
 				name: 'Photo',
@@ -112,21 +112,28 @@ export class ContentsComponent {
 					}
 				]
 			}
-		],
+		]
 	});
 
 	config = {
 		create: () => {
-			this._form.modal<Content>(this.form, {
-				label: "Create",
-				click: (created: unknown, close: () => void) => {
-					if (this.store) {
-						(created as Content).stores = [this.store];
+			this._form.modal<Content>(
+				this.form,
+				{
+					label: 'Create',
+					click: (created: unknown, close: () => void) => {
+						if (this.store) {
+							(created as Content).stores = [this.store];
+						}
+						this._cs.create(
+							created as Content,
+							this.setContents.bind(this)
+						);
+						close();
 					}
-					this._cs.create(created as Content);
-					close();
 				},
-			});
+				this.store ? { stores: [this.store] } : {}
+			);
 		},
 		update: (doc: Content) => {
 			this._form
@@ -139,32 +146,32 @@ export class ContentsComponent {
 		delete: (doc: Content) => {
 			this._alert.question({
 				text: this._translate.translate(
-					"Common.Are you sure you want to delete this cservice?"
+					'Common.Are you sure you want to delete this cservice?'
 				),
 				buttons: [
 					{
-						text: this._translate.translate("Common.No"),
+						text: this._translate.translate('Common.No')
 					},
 					{
-						text: this._translate.translate("Common.Yes"),
+						text: this._translate.translate('Common.Yes'),
 						callback: () => {
 							this._cs.delete(doc);
-						},
-					},
-				],
+						}
+					}
+				]
 			});
 		},
 		headerButtons: [
 			this._us.role('admin') || this._us.role('agent')
 				? {
-					icon: 'add_circle',
-					click: () => {
-						this._modal.show({
-							component: ContentsCreateComponent,
-							store: this.store
-						});
-					}
-				}
+						icon: 'add_circle',
+						click: () => {
+							this._modal.show({
+								component: ContentsCreateComponent,
+								store: this.store
+							});
+						}
+				  }
 				: null
 		]
 	};
@@ -205,8 +212,12 @@ export class ContentsComponent {
 		private _form: FormService,
 		private _core: CoreService,
 		private _modal: ModalService,
+		private _mongo: MongoService,
 		private _us: UserService,
 		private _store: StoreService,
 		private _ss: _StoreService
-	) { }
+	) {
+		this._store.get('store', this.setStore.bind(this));
+		this._mongo.on('content', this.setContents.bind(this));
+	}
 }
