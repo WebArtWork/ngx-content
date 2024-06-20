@@ -5,11 +5,11 @@ import { AlertService, CoreService, ModalService, MongoService, StoreService } f
 import { TranslateService } from 'src/app/modules/translate/translate.service';
 import { FormInterface } from 'src/app/modules/form/interfaces/form.interface';
 import { ContentsCreateComponent } from './contents-create/contents-create.component';
-import { UserService } from 'src/app/core';
 import {
 	Store,
 	StoreService as _StoreService
 } from 'src/app/modules/store/services/store.service';
+import { UserService } from 'src/app/modules/user/services/user.service';
 
 @Component({
 	templateUrl: './contents.component.html',
